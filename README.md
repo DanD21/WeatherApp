@@ -46,7 +46,8 @@ Contributions to the Weather Forecast App are welcome. Please consider the follo
 6. Create a new Pull Request.
 
 ## License
-(Include information about your app's license here)
+MIT
+
 
 ## Contact
 Your Name – [dan.danilescu@gmail.com](mailto:dan.danilescu@gmail.com)
