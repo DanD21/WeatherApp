@@ -1,0 +1,24 @@
+# Xcode
+xcuserdata/
+*.xcworkspace/
+*.xccheckout
+
+# Swift
+.swiftpm/
+.build/
+DerivedData/
+.DS_Store
+
+# CocoaPods
+Pods/
+Podfile.lock
+*.xcconfig
+
+# Carthage
+Carthage/Build/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
