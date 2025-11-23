@@ -1,40 +1,122 @@
 # Weather Forecast App
 
 ## Overview
-Weather Forecast is an iOS application that provides real-time weather information and forecasts. Utilizing Core Location, it fetches weather data for the user's current location or a city of their choice. The app displays the current weather, temperature, and a 3-day forecast.
+A modern iOS weather application built with **Swift 6** and **SwiftUI**, providing real-time weather information and 3-day forecasts. The app features location-based weather, city search, temperature unit conversion, and comprehensive accessibility support.
 
-## Features
-- **Current Weather Information**: Displays temperature, weather condition, and location name.
-- **3-Day Weather Forecast**: Shows the forecast for the next three days, including weather conditions and high/low temperatures.
-- **Location-Based Results**: Automatically fetches weather data based on the user's current location.
-- **Search Functionality**: Allows users to manually enter a city name to get weather data for that location.
-- **Error Handling**: Basic handling for common errors like no internet connection or API limit reached.
-- **Elegant UI**: Features a user-friendly interface with loading indicators and large, easy-to-read displays.
+## ✨ Features
+
+### Core Functionality
+- **Current Weather Information**: Real-time temperature, conditions, and location
+- **3-Day Weather Forecast**: Detailed forecast with conditions and temperature ranges
+- **Location-Based Results**: Automatic weather updates for your current location
+- **City Search**: Search for weather in any city worldwide
+- **Pull-to-Refresh**: Swipe down to update weather data
+
+### Modern Swift 6
+- ✅ Full Swift 6 strict concurrency support
+- ✅ `@MainActor` isolation for thread-safe UI updates
+- ✅ `Sendable` conformance for all data models
+- ✅ Modern async/await patterns
+- ✅ Type-safe error handling
+
+### User Experience
+- 🌡️ **Temperature Unit Toggle**: Switch between Celsius and Fahrenheit
+- 💾 **Smart Caching**: 10-minute cache to reduce API calls
+- ♿ **Full Accessibility**: VoiceOver support with descriptive labels
+- 🎨 **Modern UI**: Clean interface with SF Symbols and color-coded conditions
+- 🔒 **Secure**: API keys properly secured and never committed
+
+### Enhanced Error Handling
+- Network connectivity errors
+- Location permission management
+- Invalid city name validation
+- API rate limit handling
+- Proper HTTP status code responses
 
 ## Requirements
 - iOS 14.0+
-- Xcode 12.0+
-- Swift 5.0+
+- Xcode 15.0+
+- Swift 6.0+
+- WeatherAPI.com API key
 
 ## Installation
-Clone the repository:
-git clone https://github.com/DanD21/WeatherForecastApp.git
 
-Navigate to the project directory and open `WeatherForecastApp.xcodeproj` in Xcode.
+See [SETUP.md](SETUP.md) for detailed setup instructions.
+
+**Quick Start:**
+1. Clone the repository
+   ```bash
+   git clone https://github.com/DanD21/WeatherApp.git
+   cd WeatherApp
+   ```
+2. Copy `WeatherApp/Secrets.template.plist` to `WeatherApp/Secrets.plist`
+3. Add your WeatherAPI.com API key to `Secrets.plist`
+4. Open `WeatherApp.xcodeproj` in Xcode
+5. Build and run
 
 ## Usage
-Upon launching the app, it will request permission to access the device's location. After granting permission, the app will display weather data for the current location. Users can also enter a different city name to get weather information for that location.
 
-## Dependencies
-- [SwiftUI](https://developer.apple.com/xcode/swiftui/)
-- [Combine](https://developer.apple.com/documentation/combine)
-- [Core Location](https://developer.apple.com/documentation/corelocation)
+### First Launch
+1. Grant location permission when prompted
+2. Weather for your current location loads automatically
 
-## API Reference
-The app uses the [WeatherAPI](https://www.weatherapi.com/) to fetch weather data. An API key is required to access WeatherAPI services.
+### Features
+- **Search**: Enter any city name in the search field
+- **Refresh**: Pull down to refresh weather data
+- **Temperature Units**: Tap the thermometer icon to switch between °C and °F
+- **Accessibility**: Full VoiceOver support for visually impaired users
 
-## Screenshots
-(Add screenshots of your app here)
+## Technology Stack
+
+- **SwiftUI** - Modern declarative UI framework
+- **Combine** - Reactive programming for data flow
+- **Core Location** - GPS and location services
+- **Swift 6** - Latest Swift with strict concurrency
+- **Async/Await** - Modern asynchronous programming
+
+## API
+The app uses [WeatherAPI.com](https://www.weatherapi.com/) for weather data. Get your free API key at their website.
+
+## Architecture
+
+**MVVM Pattern** with clean separation of concerns:
+- **Models**: Sendable Codable structs for type-safe data
+- **Services**: WeatherService (networking) & LocationManager (GPS)
+- **ViewModels**: WeatherViewModel with caching and state management
+- **Views**: SwiftUI views with accessibility support
+
+## Security
+
+- ✅ API keys stored in gitignored `Secrets.plist`
+- ✅ Proper URL encoding prevents injection attacks
+- ✅ Input validation for user-entered data
+- ✅ No sensitive data in source code
+
+## What's New in this Version
+
+### Swift 6 Modernization
+- Migrated to Swift 6 strict concurrency model
+- Added `@MainActor` isolation for UI components
+- Implemented `Sendable` conformance throughout
+- Converted to async/await patterns
+
+### Security Improvements
+- Moved API keys to secure, gitignored storage
+- Fixed URL encoding vulnerability
+- Added comprehensive input validation
+
+### Features Added
+- Temperature unit toggle (Celsius/Fahrenheit)
+- Pull-to-refresh functionality
+- 10-minute weather data caching
+- Enhanced location permission handling
+- Full VoiceOver accessibility support
+
+### UX Improvements
+- Modern, cleaner UI design
+- Better error messages
+- Welcome screen for first-time users
+- Loading states and progress indicators
 
 ## Contributing
 Contributions to the Weather Forecast App are welcome. Please consider the following steps:
@@ -45,12 +127,12 @@ Contributions to the Weather Forecast App are welcome. Please consider the follo
 5. Push to the branch (`git push origin feature-xyz`).
 6. Create a new Pull Request.
 
+**Note:** Never commit `Secrets.plist` - always use the template!
+
 ## License
 MIT
 
-
 ## Contact
-Your Name – [dan.danilescu@gmail.com](mailto:dan.danilescu@gmail.com)
+Dan Danilescu – [dan.danilescu@gmail.com](mailto:dan.danilescu@gmail.com)
 
 GitHub: [https://github.com/DanD21](https://github.com/DanD21)
-

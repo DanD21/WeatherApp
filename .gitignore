@@ -9,6 +9,9 @@ xcuserdata/
 DerivedData/
 .DS_Store
 
+# Secrets
+Secrets.plist
+
 # CocoaPods
 Pods/
 Podfile.lock

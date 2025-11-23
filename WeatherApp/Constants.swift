@@ -8,7 +8,13 @@
 import Foundation
 
 struct Constants {
-    static let openWeatherMapsAPIKey = "83623098eff039020918edcbcd13bcd8"
-    static let weatherAPIKey = "930133ac44344e2fbc020553240102"
+    static var weatherAPIKey: String {
+        guard let path = Bundle.main.path(forResource: "Secrets", ofType: "plist"),
+              let secrets = NSDictionary(contentsOfFile: path),
+              let apiKey = secrets["WEATHER_API_KEY"] as? String else {
+            fatalError("Failed to load API key from Secrets.plist. Please copy Secrets.template.plist to Secrets.plist and add your API key.")
+        }
+        return apiKey
+    }
 }
 

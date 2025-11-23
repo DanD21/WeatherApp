@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct WeatherData: Codable {
+struct WeatherData: Codable, Sendable {
     let location: Location
     let current: CurrentWeather
     let forecast: Forecast
 }
 
-struct Location: Codable {
+struct Location: Codable, Sendable {
     let name: String
     let region: String
     let country: String
@@ -24,30 +24,33 @@ struct Location: Codable {
     let localtime: String
 }
 
-struct CurrentWeather: Codable {
+struct CurrentWeather: Codable, Sendable {
     let temp_c: Double
+    let temp_f: Double
     let condition: WeatherCondition
 }
 
-struct WeatherCondition: Codable {
+struct WeatherCondition: Codable, Sendable {
     let text: String
     let icon: String
     let code: Int
 }
 
-struct Forecast: Codable {
+struct Forecast: Codable, Sendable {
     let forecastday: [ForecastDay]
 }
 
-struct ForecastDay: Codable, Identifiable {
+struct ForecastDay: Codable, Identifiable, Sendable {
     var id: String { date }
     let date: String
     let day: Day
 }
 
-struct Day: Codable {
+struct Day: Codable, Sendable {
     let maxtemp_c: Double
     let mintemp_c: Double
+    let maxtemp_f: Double
+    let mintemp_f: Double
     let condition: WeatherCondition
 }
 
