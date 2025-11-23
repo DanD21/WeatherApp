@@ -10,39 +10,116 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var viewModel = WeatherViewModel()
     @State private var inputCityName = ""
+    @State private var showingSearchHistory = false
+    @State private var searchTask: Task<Void, Never>?
 
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Search field
-                HStack {
-                    TextField("Enter City Name", text: $inputCityName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .submitLabel(.search)
-                        .onSubmit {
-                            if !inputCityName.isEmpty {
-                                Task {
-                                    await viewModel.fetchWeather(forCity: inputCityName)
+                // Search field with autocomplete
+                VStack(spacing: 0) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+
+                        TextField("Search city", text: $inputCityName)
+                            .submitLabel(.search)
+                            .onSubmit {
+                                performSearch()
+                            }
+                            .onChange(of: inputCityName) { newValue in
+                                // Debounce search
+                                searchTask?.cancel()
+                                if !newValue.isEmpty && newValue.count > 2 {
+                                    showingSearchHistory = true
+                                } else {
+                                    showingSearchHistory = false
+                                }
+                            }
+                            .accessibilityLabel("City search field")
+                            .accessibilityHint("Enter a city name to search")
+
+                        if !inputCityName.isEmpty {
+                            Button(action: {
+                                inputCityName = ""
+                                showingSearchHistory = false
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                            }
+                            .accessibilityLabel("Clear search")
+                        }
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.secondary.opacity(0.1))
+                    )
+                    .padding(.horizontal)
+                    .padding(.top)
+
+                    // Search history dropdown
+                    if showingSearchHistory && !inputCityName.isEmpty {
+                        let filtered = viewModel.searchHistory.filter {
+                            $0.lowercased().contains(inputCityName.lowercased())
+                        }
+                        if !filtered.isEmpty {
+                            VStack(alignment: .leading, spacing: 0) {
+                                ForEach(filtered.prefix(5), id: \.self) { city in
+                                    Button(action: {
+                                        inputCityName = city
+                                        performSearch()
+                                        showingSearchHistory = false
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "clock.arrow.circlepath")
+                                                .foregroundColor(.secondary)
+                                            Text(city)
+                                                .foregroundColor(.primary)
+                                            Spacer()
+                                        }
+                                        .padding(12)
+                                    }
+                                    Divider()
+                                }
+                            }
+                            .background(Color(.systemBackground))
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+
+                // Favorites section
+                if !viewModel.favoriteLocations.isEmpty && inputCityName.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(viewModel.favoriteLocations, id: \.self) { city in
+                                Button(action: {
+                                    inputCityName = city
+                                    performSearch()
+                                }) {
+                                    VStack(spacing: 4) {
+                                        Image(systemName: "star.fill")
+                                            .foregroundColor(.yellow)
+                                        Text(city)
+                                            .font(.caption)
+                                            .foregroundColor(.primary)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.secondary.opacity(0.1))
+                                    )
                                 }
                             }
                         }
-                        .accessibilityLabel("City search field")
-                        .accessibilityHint("Enter a city name and press return to search")
-
-                    Button(action: {
-                        if !inputCityName.isEmpty {
-                            Task {
-                                await viewModel.fetchWeather(forCity: inputCityName)
-                            }
-                        }
-                    }) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.blue)
+                        .padding(.horizontal)
                     }
-                    .accessibilityLabel("Search button")
-                    .disabled(inputCityName.isEmpty)
+                    .padding(.top, 8)
                 }
-                .padding()
 
                 // Content area
                 ScrollView {
@@ -60,11 +137,51 @@ struct ContentView: View {
                         }
 
                         if let weatherData = viewModel.weatherData {
-                            // Current weather card
-                            CurrentWeatherCard(
-                                weatherData: weatherData,
-                                viewModel: viewModel
-                            )
+                            // Current weather card with favorite button
+                            VStack(spacing: 0) {
+                                HStack {
+                                    Spacer()
+                                    Button(action: {
+                                        viewModel.toggleFavorite(city: weatherData.location.name)
+                                    }) {
+                                        Image(systemName: viewModel.isFavorite(city: weatherData.location.name) ? "star.fill" : "star")
+                                            .foregroundColor(viewModel.isFavorite(city: weatherData.location.name) ? .yellow : .gray)
+                                            .font(.title3)
+                                    }
+                                    .accessibilityLabel(viewModel.isFavorite(city: weatherData.location.name) ? "Remove from favorites" : "Add to favorites")
+                                }
+                                .padding(.horizontal)
+
+                                NavigationLink(destination: WeatherDetailView(weatherData: weatherData, viewModel: viewModel)) {
+                                    CurrentWeatherCard(
+                                        weatherData: weatherData,
+                                        viewModel: viewModel
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                            .padding(.horizontal)
+
+                            // Quick stats
+                            HStack(spacing: 16) {
+                                QuickStatView(
+                                    icon: "humidity",
+                                    value: "\(weatherData.current.humidity)%",
+                                    label: "Humidity"
+                                )
+
+                                QuickStatView(
+                                    icon: "wind",
+                                    value: String(format: "%.0f km/h", weatherData.current.wind_kph),
+                                    label: "Wind"
+                                )
+
+                                QuickStatView(
+                                    icon: "sun.max",
+                                    value: String(format: "%.0f", weatherData.current.uv),
+                                    label: "UV Index"
+                                )
+                            }
                             .padding(.horizontal)
 
                             // Forecast section
@@ -100,21 +217,44 @@ struct ContentView: View {
                     Menu {
                         Picker("Temperature Unit", selection: $viewModel.temperatureUnit) {
                             ForEach(TemperatureUnit.allCases) { unit in
-                                Text(unit.rawValue).tag(unit)
+                                Label(unit.rawValue, systemImage: unit == .celsius ? "c.circle" : "f.circle")
+                                    .tag(unit)
                             }
                         }
                         .accessibilityLabel("Temperature unit selector")
+
+                        Divider()
+
+                        if !viewModel.searchHistory.isEmpty {
+                            Button(role: .destructive, action: {
+                                viewModel.clearSearchHistory()
+                            }) {
+                                Label("Clear Search History", systemImage: "trash")
+                            }
+                        }
                     } label: {
-                        Image(systemName: "thermometer")
-                            .accessibilityLabel("Temperature unit settings")
+                        Image(systemName: "ellipsis.circle")
+                            .accessibilityLabel("Settings")
                     }
                 }
             }
             .onAppear {
                 viewModel.requestLocation()
             }
+            .onTapGesture {
+                // Dismiss search history on tap outside
+                showingSearchHistory = false
+            }
         }
         .navigationViewStyle(.stack)
+    }
+
+    private func performSearch() {
+        guard !inputCityName.isEmpty else { return }
+        showingSearchHistory = false
+        Task {
+            await viewModel.fetchWeather(forCity: inputCityName)
+        }
     }
 }
 
@@ -141,6 +281,7 @@ struct CurrentWeatherCard: View {
                 Image(systemName: WeatherSymbols.symbol(forConditionCode: weatherData.current.condition.code))
                     .font(.system(size: 60))
                     .foregroundColor(WeatherColors.color(forConditionCode: weatherData.current.condition.code))
+                    .symbolRenderingMode(.multicolor)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -152,7 +293,20 @@ struct CurrentWeatherCard: View {
                         .font(.title3)
                         .foregroundColor(.secondary)
                         .accessibilityLabel("Condition: \(weatherData.current.condition.text)")
+
+                    Text("Feels like \(viewModel.temperature(celsius: weatherData.current.feelslike_c))°")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
+            }
+
+            // Tap for details hint
+            HStack {
+                Image(systemName: "chevron.right.circle")
+                    .foregroundColor(.blue)
+                Text("Tap for detailed weather")
+                    .font(.caption)
+                    .foregroundColor(.blue)
             }
         }
         .frame(maxWidth: .infinity)
@@ -166,6 +320,33 @@ struct CurrentWeatherCard: View {
                 .stroke(Color.blue.opacity(0.3), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
+    }
+}
+
+struct QuickStatView: View {
+    let icon: String
+    let value: String
+    let label: String
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundColor(.blue)
+            Text(value)
+                .font(.headline)
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.secondary.opacity(0.1))
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 

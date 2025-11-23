@@ -43,14 +43,23 @@ struct ForecastView: View {
         .accessibilityElement(children: .combine)
     }
 
+    // Static formatters for performance
+    private static let inputFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
+    private static let outputFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+
     private func localizedDate(from dateString: String) -> String {
-        let inputFormatter = DateFormatter()
-        inputFormatter.dateFormat = "yyyy-MM-dd"
-        if let date = inputFormatter.date(from: dateString) {
-            let outputFormatter = DateFormatter()
-            outputFormatter.dateStyle = .medium
-            outputFormatter.timeStyle = .none
-            return outputFormatter.string(from: date)
+        if let date = Self.inputFormatter.date(from: dateString) {
+            return Self.outputFormatter.string(from: date)
         }
         return dateString
     }

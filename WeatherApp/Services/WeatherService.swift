@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import OSLog
 
 enum WeatherServiceError: Error, CustomStringConvertible, Sendable {
     case networkError
@@ -42,6 +43,7 @@ enum WeatherServiceError: Error, CustomStringConvertible, Sendable {
 
 final class WeatherService: Sendable {
     private let urlSession: URLSession
+    private let logger = Logger(subsystem: AppConfiguration.subsystem, category: "WeatherService")
 
     init(urlSession: URLSession = .shared) {
         self.urlSession = urlSession
@@ -59,10 +61,12 @@ final class WeatherService: Sendable {
         components?.queryItems = [
             URLQueryItem(name: "key", value: Constants.weatherAPIKey),
             URLQueryItem(name: "q", value: trimmedCity),
-            URLQueryItem(name: "days", value: "3"),
+            URLQueryItem(name: "days", value: String(AppConfiguration.forecastDays)),
             URLQueryItem(name: "aqi", value: "no"),
             URLQueryItem(name: "alerts", value: "no")
         ]
+
+        logger.info("Fetching weather data for city: \(trimmedCity)")
 
         guard let url = components?.url else {
             return Fail(error: WeatherServiceError.invalidURL).eraseToAnyPublisher()
@@ -86,17 +90,21 @@ final class WeatherService: Sendable {
                 }
             }
             .decode(type: WeatherData.self, decoder: JSONDecoder())
-            .mapError { error -> WeatherServiceError in
+            .mapError { [logger] error -> WeatherServiceError in
                 if let weatherError = error as? WeatherServiceError {
+                    logger.error("Weather API error: \(weatherError.description)")
                     return weatherError
                 } else if let urlError = error as? URLError {
+                    logger.error("Network error: \(urlError.localizedDescription)")
                     if urlError.code == .notConnectedToInternet || urlError.code == .networkConnectionLost {
                         return .networkError
                     }
                     return .other(urlError.localizedDescription)
-                } else if error is DecodingError {
+                } else if let decodingError = error as? DecodingError {
+                    logger.error("Decoding error: \(String(describing: decodingError))")
                     return .decodingError
                 } else {
+                    logger.error("Unknown error: \(error.localizedDescription)")
                     return .other(error.localizedDescription)
                 }
             }

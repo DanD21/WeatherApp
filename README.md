@@ -7,9 +7,12 @@ A modern iOS weather application built with **Swift 6** and **SwiftUI**, providi
 
 ### Core Functionality
 - **Current Weather Information**: Real-time temperature, conditions, and location
+- **Detailed Weather View**: Tap weather card for comprehensive details including hourly forecast
 - **3-Day Weather Forecast**: Detailed forecast with conditions and temperature ranges
+- **Hourly Forecast**: 24-hour weather predictions with precipitation chances
+- **Extended Weather Data**: Humidity, wind speed/direction, UV index, visibility, pressure
 - **Location-Based Results**: Automatic weather updates for your current location
-- **City Search**: Search for weather in any city worldwide
+- **Smart City Search**: Search with autocomplete and search history
 - **Pull-to-Refresh**: Swipe down to update weather data
 
 ### Modern Swift 6
@@ -20,11 +23,15 @@ A modern iOS weather application built with **Swift 6** and **SwiftUI**, providi
 - ✅ Type-safe error handling
 
 ### User Experience
-- 🌡️ **Temperature Unit Toggle**: Switch between Celsius and Fahrenheit
-- 💾 **Smart Caching**: 10-minute cache to reduce API calls
+- 🌡️ **Temperature Unit Toggle**: Switch between Celsius and Fahrenheit (persisted)
+- ⭐ **Favorites**: Save up to 5 favorite locations for quick access
+- 🕐 **Search History**: Auto-complete with recent searches
+- 💾 **Persistent Caching**: Weather data cached and persists across app launches
 - ♿ **Full Accessibility**: VoiceOver support with descriptive labels
 - 🎨 **Modern UI**: Clean interface with SF Symbols and color-coded conditions
 - 🔒 **Secure**: API keys properly secured and never committed
+- 📊 **Quick Stats**: At-a-glance humidity, wind, and UV index
+- 🌅 **Astronomical Data**: Sunrise, sunset, moon phase information
 
 ### Enhanced Error Handling
 - Network connectivity errors
@@ -105,14 +112,27 @@ The app uses [WeatherAPI.com](https://www.weatherapi.com/) for weather data. Get
 - Fixed URL encoding vulnerability
 - Added comprehensive input validation
 
-### Features Added
-- Temperature unit toggle (Celsius/Fahrenheit)
+### Features Added (Latest Update)
+- ⭐ **Favorites system** - Save up to 5 favorite locations
+- 🕐 **Search history** - Auto-complete with recent searches
+- 📊 **Extended weather data** - Humidity, wind, UV, pressure, visibility, "feels like" temperature
+- 🌅 **Astronomical data** - Sunrise, sunset, moonrise, moonset, moon phase
+- ⏰ **Hourly forecast** - 24-hour detailed predictions
+- 💾 **Persistent cache** - Weather data persists across app launches
+- 🎯 **Detailed weather view** - Tap for comprehensive weather information
+- 📝 **OSLog integration** - Better debugging and error tracking
+- ⚡ **Performance optimizations** - Static DateFormatter instances
+- 🔧 **Configuration system** - Centralized app constants
+- ✅ **Unit tests** - Comprehensive test coverage
+- 🎨 **UI enhancements** - Search suggestions dropdown, quick stats cards
+- 🔍 **Search debouncing** - Prevents rapid API calls
+
+### Previous Features
+- Temperature unit toggle (Celsius/Fahrenheit) with persistence
 - Pull-to-refresh functionality
-- 10-minute weather data caching
+- Smart weather data caching
 - Enhanced location permission handling
 - Full VoiceOver accessibility support
-
-### UX Improvements
 - Modern, cleaner UI design
 - Better error messages
 - Welcome screen for first-time users
